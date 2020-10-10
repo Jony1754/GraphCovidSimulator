@@ -13,6 +13,7 @@ public class Persona {
     private final boolean MASCARILLA;    
     private static int contID = 0;
     private final int ID;
+    private boolean contagio; 
 
     public Persona(boolean mascarilla) {
         this.MASCARILLA = mascarilla;
@@ -27,12 +28,18 @@ public class Persona {
         return ID;
     }
 
+    public boolean isContagio() {
+        return contagio;
+    }
+
+    public void setContagio(boolean contagio) {
+        this.contagio = contagio;
+    }
+    
     public boolean equals(int ID) {
         if (this.ID == ID) {
             return true;
         }
         return false;
-    }
-    
-    
+    }   
 }

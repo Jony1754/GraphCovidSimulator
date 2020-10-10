@@ -5,6 +5,7 @@
  */
 package Application;
 
+import Grafo.Grafo;
 import Grafo.ListaEnlazada;
 import java.util.Random;
 
@@ -17,26 +18,24 @@ public class main {
     /**
      * @param args the command line arguments
      */
-    
     static final Random random = new Random();
     static ListaEnlazada<Persona> personas = new ListaEnlazada<>();
-    static final int NUM_NODOS = 20;
-    static final int MAX_NODOS_CERCANOS = (int) NUM_NODOS/2;
-    static final int DISTANCIA_MAX = 6;
-    static ListaEnlazada<ListaEnlazada> adyacencias = new ListaEnlazada<>();
-    static ListaEnlazada<ListaEnlazada> pesos = new ListaEnlazada<>();
-    
+    static final ListaEnlazada<Integer> numContagiados = new ListaEnlazada<>();
+
     public static void main(String[] args) {
-        
+
         // Dependiendo de la decisión se asigna el número de máscarillas.
-        int decisionMascarillas = 2;  
+        int decisionMascarillas = 1;
         final boolean MASCARILLAS;
-        
-        switch (decisionMascarillas){
-            case 0: 
+        final int NUM_NODOS = 5;
+        final int MAX_NODOS_CERCANOS = (int) NUM_NODOS / 2;
+        final int DISTANCIA_MAX = 5;
+
+        switch (decisionMascarillas) {
+            case 0:
                 MASCARILLAS = true;
                 crearPersonas(NUM_NODOS, MASCARILLAS);
-                break;            
+                break;
             case 1:
                 MASCARILLAS = false;
                 crearPersonas(NUM_NODOS, MASCARILLAS);
@@ -45,116 +44,106 @@ public class main {
                 crearPersonas(NUM_NODOS);
                 break;
         }
+
+        // Creación del grafo.
+        Grafo grafo = new Grafo(personas, NUM_NODOS, DISTANCIA_MAX, MAX_NODOS_CERCANOS);
+        grafo.crearGrafo();
+
+        // Recorrer grafo.
+        //grafo.recorrerGrafo();
+        System.out.println("");
+        System.out.println("*****************************************************");
+        System.out.println(""); 
         
-        Persona primer_contagio = personas.get(random.nextInt(NUM_NODOS));
-        System.out.println("Primer contagiado: " + primer_contagio.getID());
-        crearGrafo();
-        ListaEnlazada p = adyacencias.getPtr(); 
-        ListaEnlazada dis = pesos.getPtr();
+        Persona contagio = personas.get(random.nextInt(NUM_NODOS));
+        System.out.println("Primer contagiado: " + contagio.getID());       
+        contagio.setContagio(true);
+        numContagiados.add(contagio.getID());
+        //grafo.recorrerGrafo();
+        
+        // Se obtienen los posibles contagios para esa Persona.
+        ListaEnlazada distancias = (ListaEnlazada) grafo.getPesos().get(contagio.getID() - 1);
+        ListaEnlazada adyacencias = (ListaEnlazada) grafo.getAristas().get(contagio.getID() - 1);
+        ListaEnlazada posiblesContagios = grafo.obtenerPosibleContagios(contagio.getID() - 1);
+        ListaEnlazada p = posiblesContagios.getPtr().getLink();
         while (p != null){
-            ListaEnlazada personas = (ListaEnlazada) p.getDato();
-            ListaEnlazada distancia = (ListaEnlazada) dis.getDato();
-            ListaEnlazada q = personas.getPtr();
-            Persona fperson = (Persona) q.getDato();
-            ListaEnlazada d = distancia.getPtr();
-            System.out.println("===========================================");
-            while (q != null){
-                Persona person = (Persona) q.getDato();
-                System.out.println("ID: " + person.getID() + "\t| Mascarilla:\t" + Boolean.toString(person.getMascarilla()));
-                if (!person.equals(fperson)){
-                    System.out.println("Distancia entre " + fperson.getID() + " y " + person.getID() + " es:\t" + d.getDato());
-                    d = d.getLink();
-                }
-                q = q.getLink();
-            }    
-            dis = dis.getLink();        
+            Persona person = (Persona) p.getDato();    
+            int index = adyacencias.index(person) - 1;
+            int distancia = (Integer) distancias.get(index);
+            float probabilidad = calcularProbabilidad(contagio.getMascarilla(), person.getMascarilla(), distancia);
+            contagiar(person, probabilidad);
             p = p.getLink();
-        }    
+        }
+        System.out.println("");
+        System.out.println("*****************************************************");
+        System.out.println(""); 
+        grafo.recorrerGrafo();
+        System.out.println("El número de contagiados hasta ahora es: " + numContagiados.getSize());
     }
-    
-    public static void crearPersonas(int numNodos){
+
+    public static void crearPersonas(int numNodos) {
         int contBoolean = 0;
         int personasMascarillas = 0;
         final int MAX_MASCARILLAS = random.nextInt(numNodos);
         for (int i = 0; i < numNodos; i++) {
             Boolean mascarilla = random.nextBoolean();
-            if (mascarilla) ++contBoolean;
-            if (contBoolean >= MAX_MASCARILLAS){
-                while(mascarilla) mascarilla = random.nextBoolean();
+            if (mascarilla) {
+                ++contBoolean;
             }
-            if (mascarilla) ++personasMascarillas;
+            if (contBoolean >= MAX_MASCARILLAS) {
+                while (mascarilla) {
+                    mascarilla = random.nextBoolean();
+                }
+            }
+            if (mascarilla) {
+                ++personasMascarillas;
+            }
             personas.add(new Persona(mascarilla));
         }
-        
-        System.out.println("Número de máximo de personas con mascarilla: " + MAX_MASCARILLAS);               
+
+        System.out.println("Número de máximo de personas con mascarilla: " + MAX_MASCARILLAS);
         System.out.println("Número de personas con máscarillas: " + personasMascarillas);
         System.out.println("");
     }
 
-    public static void crearPersonas(int numNodos, boolean mascarilla){
+    public static void crearPersonas(int numNodos, boolean mascarilla) {
         for (int i = 0; i < numNodos; i++) {
             personas.add(new Persona(mascarilla));
-        }        
-    }
-    
-    public static void crearGrafo(){
-        ListaEnlazada p = personas.getPtr();
-        int id_random;
-        int num_personas;
-        while (p != null){
-            ListaEnlazada<Persona> nodos = new ListaEnlazada<>();
-            ListaEnlazada<Integer> distancias = new ListaEnlazada<>();
-            Persona person = (Persona) p.getDato();
-            // Se añade a la primera principal de la lista.
-            nodos.add(person);
-            // Se calcula con cuántas personas tendrá contacto.
-            num_personas = random.nextInt(MAX_NODOS_CERCANOS);
-            for (int i = 0; i < num_personas; i++) {
-                do{
-                    // Se calcula el ID de la persona con la que tendrá contacto.
-                    id_random = random.nextInt(NUM_NODOS - 1) + 1;
-                }while (nodos.hasDato(id_random));
-                // Se añade la persona con dicho ID.
-                nodos.add(personas.get(id_random - 1));
-                distancias.add(random.nextInt(DISTANCIA_MAX) + 1);
-            }
-            pesos.add(distancias);
-            adyacencias.add(nodos);
-            p = p.getLink();
         }
     }
-    
-    public float calcularProbabilidad(boolean bool1, boolean bool2, int distancia){
-        /**
-          No mascarilla	No mascarilla	>2m	80
-                No mascarilla       No mascarilla	<=2m	90
-            No mascarilla	Si mascarilla	>2m	40
-                No mascarilla       Si mascarilla	<=2m	60
-            Si mascarilla	No mascarilla	>2m	30
-                Si mascarilla       No mascarilla	<=2m	40
-            Si mascarilla	Si mascarilla	>2m	20
-                Si mascarilla       Si mascarilla	<=2m	30
-        */
-        if (distancia <= 2){
-            if (!bool1 && !bool2){
+
+    public static float calcularProbabilidad(boolean bool1, boolean bool2, int distancia) {
+        if (distancia <= 2) {
+            if (!bool1 && !bool2) {
                 return 0.9F;
-            }else if (!bool1 && bool2){
+            } else if (!bool1 && bool2) {
                 return 0.6F;
-            }else if (bool1 && !bool2){
+            } else if (bool1 && !bool2) {
                 return 0.4F;
-            }else{
+            } else {
                 return 0.3F;
             }
-        }else{
-            if (!bool1 && !bool2){
+        } else {
+            if (!bool1 && !bool2) {
                 return 0.8F;
-            }else if (!bool1 && bool2){
+            } else if (!bool1 && bool2) {
                 return 0.4F;
-            }else if (bool1 && !bool2){
+            } else if (bool1 && !bool2) {
                 return 0.3F;
-            }else{
+            } else {
                 return 0.2F;
-            }            
+            }
         }
     }
+    
+    public static void contagiar(Persona persona, float probabilidad){
+        if (!persona.isContagio()){
+            double prob = random.nextDouble(); 
+            if (prob <= probabilidad){
+                persona.setContagio(true);
+                System.out.println("La persona " + persona.getID() + " fue contagiada :(");
+                numContagiados.add(persona.getID());
+            }
+        }
+    } 
 }

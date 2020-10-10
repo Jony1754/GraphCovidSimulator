@@ -112,6 +112,26 @@ public class ListaEnlazada<T> {
         }
         return null;
     }
+
+    /**
+     * Obtener dato en una posición específica de la ListaEnlazada.
+     * 
+     * @param index Posición de la cual se quiere extraer el dato.
+     * @return T dato de la lista enlazada Enlazada en dicha posición.
+     */
+    public int index(T busq) {
+        ListaEnlazada p = this.ptr;
+        int i = 0;
+        while (p != null) {
+            T dato = (T) p.dato;
+            if (dato.equals(busq)) {
+                return i;
+            }
+            p = p.link;
+            i++;
+        }
+        return -1;
+    }
     /**
      * Verfica si la lista tiene un dato en específico.
      * 
