@@ -27,8 +27,13 @@ public class main {
         // Dependiendo de la decisión se asigna el número de máscarillas.
         int decisionMascarillas = 1;
         final boolean MASCARILLAS;
-        final int NUM_NODOS = 5;
-        final int MAX_NODOS_CERCANOS = (int) NUM_NODOS / 2;
+        final int NUM_NODOS = 20;
+        final int MAX_NODOS_CERCANOS;
+        if (NUM_NODOS >= 3) {
+            MAX_NODOS_CERCANOS = (int) NUM_NODOS / 3;
+        } else{
+            MAX_NODOS_CERCANOS = 1;
+        }
         final int DISTANCIA_MAX = 5;
 
         switch (decisionMascarillas) {
@@ -50,7 +55,7 @@ public class main {
         grafo.crearGrafo();
 
         // Recorrer grafo.
-        //grafo.recorrerGrafo();
+        grafo.recorrerGrafo();
         System.out.println("");
         System.out.println("*****************************************************");
         System.out.println(""); 
@@ -59,7 +64,7 @@ public class main {
         System.out.println("Primer contagiado: " + contagio.getID());       
         contagio.setContagio(true);
         numContagiados.add(contagio.getID());
-        //grafo.recorrerGrafo();
+        grafo.recorrerGrafo();        
         
         // Se obtienen los posibles contagios para esa Persona.
         ListaEnlazada distancias = (ListaEnlazada) grafo.getPesos().get(contagio.getID() - 1);

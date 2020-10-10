@@ -57,24 +57,24 @@ public class Grafo {
                 nodos.add(PERSONAS.get(id_random - 1));
                 distances.add(random.nextInt(DISTANCIA_MAX) + 1);
             }    
-//            // Se garantiza que el grafo sea conexo.
-//            if (p.getLink() == null){
-//                for (int i = 1; i <= NUM_NODOS; i++) {
-//                    if (!CONEXOS.hasDato(i)){
-//                        if (person.getID() == i){
-//                            ((ListaEnlazada) this.ADYACENCIAS.getPtr().getDato()).add(person);
-//                            ((ListaEnlazada) this.PESOS.getPtr().getDato()).add(random.nextInt(DISTANCIA_MAX) + 1);
-//                            CONEXOS.add(person);
-//                            System.out.println("\tDato Añadido ptr: "+ i);
-//                        }else {
-//                            CONEXOS.add(PERSONAS.get(i - 1));
-//                            System.out.println("\tDato Añadido: "+ i);
-//                            nodos.add(PERSONAS.get(i - 1));
-//                            distances.add(random.nextInt(DISTANCIA_MAX) + 1);                            
-//                        }
-//                    }
-//                }
-//            }
+            // Se garantiza que el grafo sea conexo.
+            if (p.getLink() == null){
+                for (int i = 1; i <= NUM_NODOS; i++) {
+                    if (!CONEXOS.hasDato(i)){
+                        if (person.getID() == i){
+                            ((ListaEnlazada) this.ADYACENCIAS.getPtr().getDato()).add(person);
+                            ((ListaEnlazada) this.PESOS.getPtr().getDato()).add(random.nextInt(DISTANCIA_MAX) + 1);
+                            CONEXOS.add(person);
+                            System.out.println("\tDato Añadido ptr: "+ i);
+                        }else {
+                            CONEXOS.add(PERSONAS.get(i - 1));
+                            System.out.println("\tDato Añadido: "+ i);
+                            nodos.add(PERSONAS.get(i - 1));
+                            distances.add(random.nextInt(DISTANCIA_MAX) + 1);                            
+                        }
+                    }
+                }
+            }
             this.ADYACENCIAS.add(nodos);
             this.PESOS.add(distances);
             p = p.getLink();
