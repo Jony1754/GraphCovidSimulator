@@ -114,8 +114,16 @@ public class Grafo {
      * @return Lista enlazada con los posibles contagios.
      */
     public ListaEnlazada obtenerPosibleContagios(int index) {
-        ListaEnlazada p = (ListaEnlazada) this.ADYACENCIAS.get(index);
-        return p;
+        ListaEnlazada p = ((ListaEnlazada) this.ADYACENCIAS.get(index)).getPtr().getLink();
+        ListaEnlazada<Persona> posiblesContagios = new ListaEnlazada<>();
+        while (p != null){
+            Persona person = (Persona) p.getDato();
+            if (!person.isContagio()){
+                posiblesContagios.add(person);
+            }
+            p = p.getLink();
+        }
+        return posiblesContagios;
     }
 
     /**

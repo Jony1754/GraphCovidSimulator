@@ -155,6 +155,25 @@ public class ListaEnlazada<T> {
         return false;
     }   
     /**
+     * Verfica si la lista tiene un dato en específico.
+     * 
+     * @param busq Información de la cual se quiere extraer el dato.
+     * @return boolean si encontró o no el dato.
+     */
+    public boolean hasDato(T busq) {
+        ListaEnlazada p = this.ptr;
+        int i = 0;
+        while (p != null) {
+            T dato = (T) p.dato;
+            if (dato.equals(busq)){
+                return true;
+            }
+            p = p.link;
+            i++;
+        }
+        return false;
+    } 
+    /**
      * Se verifica si la ListaEnlazada tiene al menos un dato en ella.
      * 
      * @return true si la ListaEnlazada está vacía.
