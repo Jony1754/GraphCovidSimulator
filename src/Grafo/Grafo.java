@@ -127,6 +127,16 @@ public class Grafo {
     }
 
     /**
+     * Se obtiene los posibles contagios que puede tener un nodo.
+     * 
+     * @param index Nodo el cual se desea analizar.
+     * @return Lista enlazada con los posibles contagios.
+     */
+    public ListaEnlazada obtenerAdyacencias(int index) {
+        ListaEnlazada p = (ListaEnlazada) this.ADYACENCIAS.get(index);
+        return p;
+    }
+    /**
      * Se obtiene la ListaEnlazada de nodos del grafo. 
      * 
      * @return ListaEnlaza con los nodos que conforman el grafo. 
