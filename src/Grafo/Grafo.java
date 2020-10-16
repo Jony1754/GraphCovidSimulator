@@ -1,14 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package Grafo;
 
 import Application.Persona;
 import java.util.Random;
 
 /**
+ * Clase Grafo, contiene todas las conexiones entre las personas con las cuales
+ * se realizará la simulación de contagio del COVID-19.
  *
  * @author Enrique Niebles
  */
@@ -23,6 +21,17 @@ public class Grafo {
     private final int MAX_NODOS_CERCANOS;
     private final int DISTANCIA_MAX;
 
+    /**
+     * Constructor de la clase grafo, se crean las conexiones entre las
+     * personas.
+     *
+     * @param personas ListaEnlazada con todas las personas que conformarán la
+     * población.
+     * @param numNodos Número de nodos que tendrá el grafo.
+     * @param distanciaMax Distancia máxima entre nodos.
+     * @param maxNodosCercanos Cantidad máxima de conexiones que puede tener un
+     * nodo.
+     */
     public Grafo(ListaEnlazada<Persona> personas, int numNodos, int distanciaMax, int maxNodosCercanos) {
         this.NUM_NODOS = numNodos;
         this.DISTANCIA_MAX = distanciaMax;
@@ -33,6 +42,11 @@ public class Grafo {
         this.CONEXOS = new ListaEnlazada<>();
     }
 
+    /**
+     * Método que se encarga de crear e grafo, teniendo en cuenta todas las
+     * condiciones necesarias para garantizar un grafo conexo.
+     *
+     */
     public void crearGrafo() {
         ListaEnlazada p = PERSONAS.getPtr();
         int id_random;
@@ -83,6 +97,10 @@ public class Grafo {
         }
     }
 
+    /**
+     * Método que se encarga de recorrer el grafo y dibujar su recorrido.
+     *
+     */
     public void recorrerGrafo() {
         ListaEnlazada p = this.ADYACENCIAS.getPtr();
         ListaEnlazada dis = this.PESOS.getPtr();
@@ -92,10 +110,10 @@ public class Grafo {
             ListaEnlazada q = nodos.getPtr();
             Persona fperson = (Persona) q.getDato();
             ListaEnlazada d = distancia.getPtr();
-            System.out.println("===========================================");
+            System.out.println("======================================================");
             while (q != null) {
                 Persona person = (Persona) q.getDato();
-                System.out.println("ID: " + person.getID() + "\t| Mascarilla:\t" + Boolean.toString(person.getMascarilla()) + "\t | Contagio:\t" + Boolean.toString(person.isContagio()));
+                System.out.println("ID: " + person.getID() + "\t| Mascarilla:\t" + Boolean.toString(person.getMascarilla()) + "\t | Contagio:\t" + Boolean.toString(person.isContagiada()));
                 if (!person.equals(fperson)) {
                     System.out.println("Distancia entre " + fperson.getID() + " y " + person.getID() + " es:\t" + d.getDato());
                     d = d.getLink();
@@ -108,17 +126,18 @@ public class Grafo {
     }
 
     /**
-     * Se obtiene los posibles contagios que puede tener un nodo.
-     * 
+     * Se obtiene los posibles contagios que puede tener un nodo, sin tener en
+     * cuenta los nodos que ya han sido contagiados.
+     *
      * @param index Nodo el cual se desea analizar.
      * @return Lista enlazada con los posibles contagios.
      */
     public ListaEnlazada obtenerPosibleContagios(int index) {
         ListaEnlazada p = ((ListaEnlazada) this.ADYACENCIAS.get(index)).getPtr().getLink();
         ListaEnlazada<Persona> posiblesContagios = new ListaEnlazada<>();
-        while (p != null){
+        while (p != null) {
             Persona person = (Persona) p.getDato();
-            if (!person.isContagio()){
+            if (!person.isContagiada()) {
                 posiblesContagios.add(person);
             }
             p = p.getLink();
@@ -127,8 +146,9 @@ public class Grafo {
     }
 
     /**
-     * Se obtiene los posibles contagios que puede tener un nodo.
-     * 
+     * Se obtiene los posibles contagios que puede tener un nodo, incluyendo el
+     * mismo nodo.
+     *
      * @param index Nodo el cual se desea analizar.
      * @return Lista enlazada con los posibles contagios.
      */
@@ -136,19 +156,20 @@ public class Grafo {
         ListaEnlazada p = (ListaEnlazada) this.ADYACENCIAS.get(index);
         return p;
     }
+
     /**
-     * Se obtiene la ListaEnlazada de nodos del grafo. 
-     * 
-     * @return ListaEnlaza con los nodos que conforman el grafo. 
+     * Se obtiene la ListaEnlazada de nodos del grafo.
+     *
+     * @return ListaEnlaza con los nodos que conforman el grafo.
      */
     public ListaEnlazada<Persona> getPersonas() {
         return this.PERSONAS;
     }
 
     /**
-     * Se obtiene la ListaEnlazada de adayacencia del grafo. 
-     * 
-     * @return ListaEnlaza con las aristas que conforman el grafo. 
+     * Se obtiene la ListaEnlazada de adayacencia del grafo.
+     *
+     * @return ListaEnlaza con las aristas que conforman el grafo.
      */
     public ListaEnlazada<ListaEnlazada> getAristas() {
         return this.ADYACENCIAS;
@@ -156,7 +177,7 @@ public class Grafo {
 
     /**
      * Se obtiene la ListaEnlazada de pesos del grafo.
-     * 
+     *
      * @return ListaEnlaza con los pesos.
      */
     public ListaEnlazada<ListaEnlazada> getPesos() {
@@ -165,7 +186,7 @@ public class Grafo {
 
     /**
      * Se obtiene el número de nodos del grafo.
-     * 
+     *
      * @return int con el número de nodos.
      */
     public int getNumNodos() {

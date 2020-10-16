@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package Grafo;
 
 import Application.Persona;
@@ -114,10 +110,10 @@ public class ListaEnlazada<T> {
     }
 
     /**
-     * Obtener dato en una posición específica de la ListaEnlazada.
+     * Obtener el índice en la lista de un dato T a buscar.
      * 
-     * @param index Posición de la cual se quiere extraer el dato.
-     * @return T dato de la lista enlazada Enlazada en dicha posición.
+     * @param busq Dato que se desea buscar en la lista.
+     * @return int con la posición del grafo en la lista.
      */
     public int index(T busq) {
         ListaEnlazada p = this.ptr;
@@ -132,10 +128,11 @@ public class ListaEnlazada<T> {
         }
         return -1;
     }
+    
     /**
-     * Verfica si la lista tiene un dato en específico.
+     * Verfica si la lista contiene una persona con un ID específico.
      * 
-     * @param busq Información de la cual se quiere extraer el dato.
+     * @param busq ID de la persona que se desea buscar en la ListaEnlazada.
      * @return boolean si encontró o no el dato.
      */
     public boolean hasDato(int busq) {
@@ -154,6 +151,7 @@ public class ListaEnlazada<T> {
         }
         return false;
     }   
+    
     /**
      * Verfica si la lista tiene un dato en específico.
      * 
@@ -173,6 +171,7 @@ public class ListaEnlazada<T> {
         }
         return false;
     } 
+    
     /**
      * Se verifica si la ListaEnlazada tiene al menos un dato en ella.
      * 
