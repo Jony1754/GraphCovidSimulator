@@ -174,6 +174,12 @@ public class Grafo {
     public ListaEnlazada<ListaEnlazada> getAristas() {
         return this.ADYACENCIAS;
     }
+    
+   public void destroyGraph(){
+      ADYACENCIAS.destroy();
+      CONEXOS.destroy();
+      PERSONAS.destroy();
+   }
 
     /**
      * Se obtiene la ListaEnlazada de pesos del grafo.
