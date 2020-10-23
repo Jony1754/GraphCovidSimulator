@@ -26,7 +26,7 @@ public class main {
         // Para pedir los datos por consola,
         Scanner sc = new Scanner(System.in);
         // Dependiendo de la decisión se asigna el número de máscarillas.
-        int decisionMascarillas = 1;
+        int decisionMascarillas = 0;
         final boolean MASCARILLAS;
         final int NUM_NODOS;
         System.out.println("Digie el número de personas para esta simulación: ");
@@ -99,7 +99,7 @@ public class main {
             p = p.getLink();
         }
 
-        contagioPoblacion(grafo);
+        contagioPoblacion(grafo);        
         // Se imprime el resultado final de los contagiados.
         System.out.println("\n\n\t\tRESULTADOS\n\n");
         grafo.recorrerGrafo();
@@ -115,9 +115,21 @@ public class main {
      */
     public static void contagioPoblacion(Grafo grafo) {
         while (rutasContagios.getSize() != contagiados.getSize()) {
-            iteracion++;
+            contagioManual(grafo);
+        }
+    }
+    
+    /**
+     * Lleva a cabo el contagio automático de la población, dependiendo del
+     * contagio incial.
+     *
+     * @param grafo Grafo que contiene la población.
+     */
+    public static void contagioManual(Grafo grafo) {
+        if (rutasContagios.getSize() != contagiados.getSize()) {
             System.out.println();
             ListaEnlazada q = rutasContagios.getPtr();
+            iteracion++;
             int i = 1;
             System.out.println("================================================");
             ListaEnlazada<Persona> contagiados = new ListaEnlazada<>();
@@ -154,7 +166,6 @@ public class main {
                     return;
                 }
                 q = q.getLink();
-                //grafo.recorrerGrafo();
                 i++;
             }
         }
