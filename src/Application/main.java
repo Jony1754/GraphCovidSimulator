@@ -1,4 +1,3 @@
-
 package Application;
 
 import Grafo.Grafo;
@@ -20,18 +19,19 @@ public class main {
     static ListaEnlazada<Persona> personasAContagiar = new ListaEnlazada<>();
     static final ListaEnlazada<Persona> contagiados = new ListaEnlazada<>();
     static ListaEnlazada<ListaEnlazada> rutasContagios = new ListaEnlazada<>();
-    static int iteracion = 1;
+    static int iteracion = 0;
 
     public static void main(String[] args) throws InterruptedException {
 
         // Para pedir los datos por consola,
         Scanner sc = new Scanner(System.in);
         // Dependiendo de la decisión se asigna el número de máscarillas.
-        int decisionMascarillas = 2;
+        int decisionMascarillas = 1;
         final boolean MASCARILLAS;
         final int NUM_NODOS;
         System.out.println("Digie el número de personas para esta simulación: ");
-        NUM_NODOS = sc.nextInt();
+        //NUM_NODOS = sc.nextInt();
+        NUM_NODOS = 5;
         final int MAX_NODOS_CERCANOS;
 
         // Se garantiza un número mínimo de aristas entre los nodos.
@@ -115,29 +115,36 @@ public class main {
      */
     public static void contagioPoblacion(Grafo grafo) {
         while (rutasContagios.getSize() != contagiados.getSize()) {
+            iteracion++;
             System.out.println();
             ListaEnlazada q = rutasContagios.getPtr();
             int i = 1;
             System.out.println("================================================");
+            ListaEnlazada<Persona> contagiados = new ListaEnlazada<>();
             while (q != null) {
                 System.out.println("\nCamino: " + i);
                 ListaEnlazada m = (ListaEnlazada) q.getDato();
                 Persona person = (Persona) m.getDato();
-                if (person.isContagiada()) {
-                    ListaEnlazada adyacencias = (ListaEnlazada) grafo.getAristas().get(person.getID() - 1);
-                    ListaEnlazada distancias = (ListaEnlazada) grafo.getPesos().get(person.getID() - 1);
-                    System.out.println("Persona principal: " + person.getID());
-                    m = m.getLink();
-                    while (m != null) {
-                        Persona vecino = (Persona) m.getDato();
-                        System.out.println("\tVecino: " + vecino.getID());
-                        if (!vecino.isContagiada()) {
-                            int index = adyacencias.index(vecino) - 1;
-                            int distancia = (Integer) distancias.get(index);
-                            float probabilidad = calcularProbabilidad(person.getMascarilla(), vecino.getMascarilla(), distancia);
-                            contagiar(vecino, probabilidad);
-                        }
+                if (!contagiados.hasDato(person)) {
+                    if (person.isContagiada()) {
+                        ListaEnlazada adyacencias = (ListaEnlazada) grafo.getAristas().get(person.getID() - 1);
+                        ListaEnlazada distancias = (ListaEnlazada) grafo.getPesos().get(person.getID() - 1);
+                        System.out.println("Persona principal: " + person.getID());
                         m = m.getLink();
+                        while (m != null) {
+                            Persona vecino = (Persona) m.getDato();
+                            System.out.println("\tVecino: " + vecino.getID());
+                            if (!vecino.isContagiada()) {
+                                int index = adyacencias.index(vecino) - 1;
+                                int distancia = (Integer) distancias.get(index);
+                                float probabilidad = calcularProbabilidad(person.getMascarilla(), vecino.getMascarilla(), distancia);
+                                contagiar(vecino, probabilidad);
+                                if (vecino.isContagiada()) {
+                                    contagiados.add(vecino);
+                                }
+                            }
+                            m = m.getLink();
+                        }
                     }
                 }
                 System.out.println("\nNum de iteraciones: " + iteracion);
@@ -147,7 +154,6 @@ public class main {
                     return;
                 }
                 q = q.getLink();
-                iteracion++;
                 //grafo.recorrerGrafo();
                 i++;
             }
