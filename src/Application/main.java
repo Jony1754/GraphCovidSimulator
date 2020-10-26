@@ -19,6 +19,7 @@ public class main {
     static ListaEnlazada<Persona> personasAContagiar = new ListaEnlazada<>();
     static final ListaEnlazada<Persona> contagiados = new ListaEnlazada<>();
     static ListaEnlazada<ListaEnlazada> rutasContagios = new ListaEnlazada<>();
+    private static ListaEnlazada<ListaEnlazada> rutas = new ListaEnlazada<>();
     static int iteracion = 0;
 
     public static void main(String[] args) throws InterruptedException {
@@ -26,12 +27,12 @@ public class main {
         // Para pedir los datos por consola,
         Scanner sc = new Scanner(System.in);
         // Dependiendo de la decisión se asigna el número de máscarillas.
-        int decisionMascarillas = 0;
+        int decisionMascarillas = 2;
         final boolean MASCARILLAS;
         final int NUM_NODOS;
         System.out.println("Digie el número de personas para esta simulación: ");
         //NUM_NODOS = sc.nextInt();
-        NUM_NODOS = 5;
+        NUM_NODOS = 10;
         final int MAX_NODOS_CERCANOS;
 
         // Se garantiza un número mínimo de aristas entre los nodos.
@@ -90,22 +91,61 @@ public class main {
         rutasContagios.add(posiblesContagios.getPtr());
         obtenerContagios(posiblesContagios, grafo);
 
-        // Se imprimen todas las personas que deben salir contagiadas en esta simulación.
-        ListaEnlazada p = personasAContagiar.getPtr();
-        System.out.println();
-        while (p != null) {
-            Persona person = (Persona) p.getDato();
-            System.out.println("Persona a contagiar: " + person.getID());
-            p = p.getLink();
-        }
+        //contagioPoblacion(grafo);   
+        //ListaEnlazada<ListaEnlazada> rutas = obtenerRutaContagios(grafo, contagio.getID());
 
-        contagioPoblacion(grafo);        
+        contagioPoblacion(grafo);
         // Se imprime el resultado final de los contagiados.
         System.out.println("\n\n\t\tRESULTADOS\n\n");
         grafo.recorrerGrafo();
         System.out.println("\nNum de iteraciones: " + iteracion);
         System.out.println("El número de contagiados hasta ahora es: " + contagiados.getSize());
     }
+
+//    /**
+//     * Se obtiene la ruta de contagio en la cual un nodo puede ser contagiado.
+//     *
+//     * @param ID Nodo el cual se desea analizar.
+//     * @return Lista enlazada con los posibles contagios.
+//     */
+//    public static ListaEnlazada obtenerRutaContagios(Grafo grafo, int ID) {
+//        ListaEnlazada ady = grafo.getAristas().getPtr();
+//        ListaEnlazada<ListaEnlazada> rutas = new ListaEnlazada<>();
+//        while (ady != null) {
+//            ListaEnlazada nodos = (ListaEnlazada) ady.getDato();
+//            ListaEnlazada ad = nodos.getPtr();
+//            Persona principal = (Persona) ad.getDato();
+//            if (!principal.equals(ID)) {
+//                //ad = ad.getLink();
+//                ListaEnlazada<ListaEnlazada> rutasTemp = new ListaEnlazada<>();
+//                Persona pf = (Persona) ad.getDato();
+//                System.out.println("*********Person : " + pf.getID());
+//                ListaEnlazada vecinos = grafo.obtenerAdyacencias(pf.getID() - 1);
+//                vecinos = vecinos.getPtr().getLink();
+//                recursivo(grafo, vecinos, pf);
+//            }
+//            ady = ady.getLink();
+//        }
+//        return rutas;
+//    }
+//
+//    public static void recursivo(Grafo grafo, ListaEnlazada p, Persona per) {
+//        if (p == null){
+//            return;
+//        }
+//        else {
+//            Persona pf = (Persona) p.getDato();
+//            if (pf.equals(per)) {
+//                return;
+//            } else {
+//                System.out.println("=======Person : " + pf.getID());
+//                ListaEnlazada vecinos = grafo.obtenerAdyacencias(pf.getID() - 1);
+//                rutas.add(vecinos);
+//                p = p.getLink();
+//                recursivo(grafo, p, per);
+//            }
+//        }
+//    }
 
     /**
      * Lleva a cabo el contagio automático de la población, dependiendo del
@@ -116,11 +156,12 @@ public class main {
     public static void contagioPoblacion(Grafo grafo) {
         while (rutasContagios.getSize() != contagiados.getSize()) {
             contagioManual(grafo);
+            //grafo.recorrerGrafo();
         }
     }
-    
+
     /**
-     * Lleva a cabo el contagio automático de la población, dependiendo del
+     * Lleva a cabo el contagio por iteraciones de la población, dependiendo del
      * contagio incial.
      *
      * @param grafo Grafo que contiene la población.
@@ -132,12 +173,12 @@ public class main {
             iteracion++;
             int i = 1;
             System.out.println("================================================");
-            ListaEnlazada<Persona> contagiados = new ListaEnlazada<>();
+            ListaEnlazada<Persona> contagios = new ListaEnlazada<>();
             while (q != null) {
                 System.out.println("\nCamino: " + i);
                 ListaEnlazada m = (ListaEnlazada) q.getDato();
                 Persona person = (Persona) m.getDato();
-                if (!contagiados.hasDato(person)) {
+                if (!contagios.hasDato(person)) {
                     if (person.isContagiada()) {
                         ListaEnlazada adyacencias = (ListaEnlazada) grafo.getAristas().get(person.getID() - 1);
                         ListaEnlazada distancias = (ListaEnlazada) grafo.getPesos().get(person.getID() - 1);
@@ -152,7 +193,7 @@ public class main {
                                 float probabilidad = calcularProbabilidad(person.getMascarilla(), vecino.getMascarilla(), distancia);
                                 contagiar(vecino, probabilidad);
                                 if (vecino.isContagiada()) {
-                                    contagiados.add(vecino);
+                                    contagios.add(vecino);
                                 }
                             }
                             m = m.getLink();
@@ -168,6 +209,22 @@ public class main {
                 q = q.getLink();
                 i++;
             }
+        }
+    }
+
+    /**
+     * Posibles nodos que pueden resultar contagiados por una persona.
+     *
+     * @param grafo Grafo a realizar el estudio.
+     * @param ID Persona la cual se busca analizar.
+     */
+    public static void getContagios(Grafo grafo, int ID) {
+        ListaEnlazada w = grafo.obtenerPosibleContagios(ID - 1);
+        ListaEnlazada f = w.getPtr();
+        while (f != null) {
+            Persona pf = (Persona) f.getDato();
+            System.out.println("Persona : " + pf.getID());
+            f = f.getLink();
         }
     }
 
@@ -195,12 +252,24 @@ public class main {
     }
 
     /**
+     * Se reinician los parámetros para una nueva simulación.
+     */
+    public static void reiniciarSimulacion() {
+        personas.clear();
+        personasAContagiar.clear();
+        contagiados.clear();
+        rutasContagios.clear();
+        iteracion = 0;
+    }
+
+    /**
      * Se crea la ListaEnlazada con las personas que conforman la población de
      * estudio, donde el uso de mascarilla es aleatorio.
      *
      * @param numNodos Número de nodos que tendrá el grafo.
      */
     public static void crearPersonas(int numNodos) {
+        reiniciarSimulacion();
         int contBoolean = 0;
         int personasMascarillas = 0;
         final int MAX_MASCARILLAS = random.nextInt(numNodos);
@@ -234,6 +303,7 @@ public class main {
      * población.
      */
     public static void crearPersonas(int numNodos, boolean mascarilla) {
+        reiniciarSimulacion();
         for (int i = 0; i < numNodos; i++) {
             personas.add(new Persona(mascarilla));
         }

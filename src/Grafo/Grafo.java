@@ -1,7 +1,7 @@
-
 package Grafo;
 
 import Application.Persona;
+import Application.main;
 import java.util.Random;
 
 /**
@@ -174,12 +174,12 @@ public class Grafo {
     public ListaEnlazada<ListaEnlazada> getAristas() {
         return this.ADYACENCIAS;
     }
-    
-   public void destroyGraph(){
-      ADYACENCIAS.destroy();
-      CONEXOS.destroy();
-      PERSONAS.destroy();
-   }
+
+    public void destroyGraph() {
+        ADYACENCIAS.clear();
+        CONEXOS.clear();
+        PERSONAS.clear();
+    }
 
     /**
      * Se obtiene la ListaEnlazada de pesos del grafo.

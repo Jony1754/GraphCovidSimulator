@@ -128,14 +128,15 @@ public class ListaEnlazada<T> {
         return -1;
     }
 
-    public void destroy() {
+    public void clear() {
         ListaEnlazada p = this.ptr;
-        ListaEnlazada q = p;      
+        ListaEnlazada q = p;
         while (p != null) {
             q = q.link;
             p = null;
-            p = q;        
+            p = q;
         }
+        this.size = 0;
     }
 
     /**
