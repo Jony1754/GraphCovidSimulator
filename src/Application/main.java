@@ -1,5 +1,6 @@
 package Application;
 
+import Grafo.Dijkstra;
 import Grafo.Grafo;
 import Grafo.ListaEnlazada;
 import java.util.Random;
@@ -19,20 +20,18 @@ public class main {
     static ListaEnlazada<Persona> personasAContagiar = new ListaEnlazada<>();
     static final ListaEnlazada<Persona> contagiados = new ListaEnlazada<>();
     static ListaEnlazada<ListaEnlazada> rutasContagios = new ListaEnlazada<>();
-    private static ListaEnlazada<ListaEnlazada> rutas = new ListaEnlazada<>();
+    static ListaEnlazada<ListaEnlazada> grafoDis;
     static int iteracion = 0;
 
     public static void main(String[] args) throws InterruptedException {
 
-        // Para pedir los datos por consola,
-        Scanner sc = new Scanner(System.in);
         // Dependiendo de la decisión se asigna el número de máscarillas.
         int decisionMascarillas = 2;
         final boolean MASCARILLAS;
         final int NUM_NODOS;
+        Scanner sc = new Scanner(System.in);
         System.out.println("Digie el número de personas para esta simulación: ");
-        //NUM_NODOS = sc.nextInt();
-        NUM_NODOS = 10;
+        NUM_NODOS = sc.nextInt();
         final int MAX_NODOS_CERCANOS;
 
         // Se garantiza un número mínimo de aristas entre los nodos.
@@ -69,6 +68,7 @@ public class main {
         System.out.println("Creando grafo...");
         grafo.crearGrafo();
         System.out.println("Grafo creado.");
+        grafoDis = obtenerListaDistancias(grafo, NUM_NODOS);
         // Se imprime el grafo inicial.
         grafo.recorrerGrafo();
         System.out.println("");
@@ -91,61 +91,139 @@ public class main {
         rutasContagios.add(posiblesContagios.getPtr());
         obtenerContagios(posiblesContagios, grafo);
 
-        //contagioPoblacion(grafo);   
-        //ListaEnlazada<ListaEnlazada> rutas = obtenerRutaContagios(grafo, contagio.getID());
+        // =====================================================================================
+        // Esto es lo que va dentro del botón, necesitas escoger el nodo a analizar.
+        // Método para obtener la ruta de mayor riesgo de contagio al hacer click a un nodo no contagiado.
+        int personID = 2;
+        ListaEnlazada r = calcularRuta(NUM_NODOS, personID);
+        // Recorrer la ruta mínima por el algoritmo de Dijkstra.
+        System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+        while (r != null) {
+            Integer tempID = (Integer) r.getDato();
+            Persona person = (Persona) personas.get(tempID);
+            System.out.println(person.getID() + "\t " + person.isContagiada());
+            r = r.getLink();
+        }
 
+        // =====================================================================================
+        
         contagioPoblacion(grafo);
         // Se imprime el resultado final de los contagiados.
         System.out.println("\n\n\t\tRESULTADOS\n\n");
-        grafo.recorrerGrafo();
+        //grafo.recorrerGrafo();
         System.out.println("\nNum de iteraciones: " + iteracion);
         System.out.println("El número de contagiados hasta ahora es: " + contagiados.getSize());
+
+        // =====================================================================================
+        // Método para obtener la ruta de mayor riesgo de contagio al hacer click a un nodo no contagiado.
+        r = calcularRuta(NUM_NODOS, personID);
+        // Recorrer la ruta mínima por el algoritmo de Dijkstra.
+        System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+        while (r != null) {
+            Integer tempID = (Integer) r.getDato();
+            Persona person = (Persona) personas.get(tempID);
+            System.out.println(person.getID() + "\t " + person.isContagiada());
+            r = r.getLink();
+        }
+
+        // =====================================================================================
     }
 
-//    /**
-//     * Se obtiene la ruta de contagio en la cual un nodo puede ser contagiado.
-//     *
-//     * @param ID Nodo el cual se desea analizar.
-//     * @return Lista enlazada con los posibles contagios.
-//     */
-//    public static ListaEnlazada obtenerRutaContagios(Grafo grafo, int ID) {
-//        ListaEnlazada ady = grafo.getAristas().getPtr();
-//        ListaEnlazada<ListaEnlazada> rutas = new ListaEnlazada<>();
-//        while (ady != null) {
-//            ListaEnlazada nodos = (ListaEnlazada) ady.getDato();
-//            ListaEnlazada ad = nodos.getPtr();
-//            Persona principal = (Persona) ad.getDato();
-//            if (!principal.equals(ID)) {
-//                //ad = ad.getLink();
-//                ListaEnlazada<ListaEnlazada> rutasTemp = new ListaEnlazada<>();
-//                Persona pf = (Persona) ad.getDato();
-//                System.out.println("*********Person : " + pf.getID());
-//                ListaEnlazada vecinos = grafo.obtenerAdyacencias(pf.getID() - 1);
-//                vecinos = vecinos.getPtr().getLink();
-//                recursivo(grafo, vecinos, pf);
-//            }
-//            ady = ady.getLink();
-//        }
-//        return rutas;
-//    }
-//
-//    public static void recursivo(Grafo grafo, ListaEnlazada p, Persona per) {
-//        if (p == null){
-//            return;
-//        }
-//        else {
-//            Persona pf = (Persona) p.getDato();
-//            if (pf.equals(per)) {
-//                return;
-//            } else {
-//                System.out.println("=======Person : " + pf.getID());
-//                ListaEnlazada vecinos = grafo.obtenerAdyacencias(pf.getID() - 1);
-//                rutas.add(vecinos);
-//                p = p.getLink();
-//                recursivo(grafo, p, per);
-//            }
-//        }
-//    }
+    /**
+     * Se construye un conjunto de lista con las distancias entre todos los
+     * nodos, con el fin de analizar posteriormente el camino mínimo con el
+     * agoritmo de Dijkstra.
+     *
+     * @param grafo Grafo que desea analizarse.
+     * @param numNodos Número de nodos que tiene el grafo.
+     * @return ListaEnlazada con la información completa del grafo.
+     */
+    public static ListaEnlazada obtenerListaDistancias(Grafo grafo, int numNodos) {
+        ListaEnlazada<ListaEnlazada> grafoDistancias = new ListaEnlazada<>();
+        ListaEnlazada<Integer> filas;
+        ListaEnlazada ady = grafo.getAristas().getPtr();
+        ListaEnlazada adp = grafo.getPesos().getPtr();
+        while (ady != null) {
+            filas = new ListaEnlazada<>();
+            ListaEnlazada nodos = (ListaEnlazada) ady.getDato();
+            ListaEnlazada pesos = (ListaEnlazada) adp.getDato();
+            for (int i = 1; i <= numNodos; i++) {
+                int index = nodos.index(i);
+                if (nodos.hasDato(i) && index != 0) {
+                    filas.add((Integer) pesos.get(index - 1));
+                } else if (index == 0) {
+                    filas.add(0);
+                } else {
+                    filas.add(9999);
+                }
+            }
+            grafoDistancias.add(filas);
+            adp = adp.getLink();
+            ady = ady.getLink();
+        }
+        return grafoDistancias;
+    }
+
+    /**
+     * Se obtiene la ruta de contagio en la cual un nodo puede ser contagiado.
+     *
+     * @param numNodos Número de nodos que tiene el grafo.
+     * @param personID ID de la persona no contagiada.
+     * @return
+     */
+    public static ListaEnlazada calcularRuta(int numNodos, int personID) {
+        ListaEnlazada<ListaEnlazada> rutas = new ListaEnlazada<>();
+        ListaEnlazada<ListaEnlazada> distancias = new ListaEnlazada<>();
+        Dijkstra dijkstra = new Dijkstra(numNodos, grafoDis);
+        for (int i = 0; i < numNodos; i++) {
+            if (i != personID) {
+                dijkstra.dijkstra(i, personID - 1);
+                rutas.add(dijkstra.getCaminos());
+                distancias.add(dijkstra.getRutas());
+            }
+        }
+        return menorRuta(rutas, distancias);
+    }
+
+    /**
+     * Se obtiene la ruta de mayor riesgo de contagio de un nodo no contagiado.
+     *
+     * @param rutas Rutas mínimas entre todos los nodos y el nodo final.
+     * @param distancias Distancia que tiene cada ruta.
+     * @return ListaEnlazada con la ruta de mayor riesgo de contagio.
+     */
+    private static ListaEnlazada menorRuta(ListaEnlazada<ListaEnlazada> rutas, ListaEnlazada<ListaEnlazada> distancias) {
+        ListaEnlazada rutaMinima = null;
+        ListaEnlazada p = ((ListaEnlazada) rutas.getPtr().getDato()).getPtr();
+        ListaEnlazada d = ((ListaEnlazada) distancias.getPtr().getDato()).getPtr();
+        int distTemp = 9999;
+        ListaEnlazada rutaTemp = null;
+        while (p != null) {
+            int distancia = (Integer) d.getDato();
+            int numContagiados = 0;
+            ListaEnlazada q = ((ListaEnlazada) p.getDato()).getPtr();
+            rutaTemp = q;
+            while (q != null) {
+                Integer hentai = (Integer) q.getDato();
+                Persona person = (Persona) personas.get(hentai);
+                if (q.getLink() != null) {
+                    if (q.getLink().getLink() == null && person.isContagiada()) {
+                        numContagiados++;
+                    }
+                }
+                q = q.getLink();
+            }
+            if (numContagiados == 1) {
+                rutaMinima = rutaTemp;
+            } else if (distancia < distTemp) {
+                distTemp = distancia;
+                rutaMinima = rutaTemp;
+            }
+            d = d.getLink();
+            p = p.getLink();
+        }
+        return rutaMinima;
+    }
 
     /**
      * Lleva a cabo el contagio automático de la población, dependiendo del

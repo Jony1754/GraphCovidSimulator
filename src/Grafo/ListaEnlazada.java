@@ -109,6 +109,24 @@ public class ListaEnlazada<T> {
     }
 
     /**
+     * Cambiar dato en una posición específica de la ListaEnlazada.
+     *
+     * @param index Posición de la cual se quiere cambiar el dato.
+     * @param dato Dato que se desea cambiar.
+     */
+    public void set(int index, T dato) {
+        ListaEnlazada p = this.ptr;
+        int i = 0;
+        while (p != null) {
+            if (i == index) {
+                p.dato = dato;
+            }
+            p = p.link;
+            i++;
+        }
+    }
+
+    /**
      * Obtener el índice en la lista de un dato T a buscar.
      *
      * @param busq Dato que se desea buscar en la lista.
@@ -128,6 +146,32 @@ public class ListaEnlazada<T> {
         return -1;
     }
 
+    /**
+     * Obtener el índice en la lista de un dato T a buscar.
+     *
+     * @param busq Entero con la ID que se desea buscar en la lista.
+     * @return int con la posición del grafo en la lista.
+     */
+    public int index(int busq) {
+        ListaEnlazada p = this.ptr;
+        int i = 0;
+        while (p != null) {
+            T dato = (T) p.dato;
+            if (dato instanceof Persona) {
+                if (((Persona) dato).equals(busq)) {
+                    return i;
+                }
+            }
+            p = p.link;
+            i++;
+        }
+        return -1;
+    }
+
+    /**
+     * Método para reiniciar el grafo, se destruyen los enlaces del mismo.
+     * 
+     */
     public void clear() {
         ListaEnlazada p = this.ptr;
         ListaEnlazada q = p;
